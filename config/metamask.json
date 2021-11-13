@@ -1,0 +1,9 @@
+{
+  "metamask_bsc": {
+    "network_name": "Binance Smart Chain",
+    "new_rpc_url": "https://bsc-dataseed.binance.org/",
+    "chain_id": "56",
+    "symbol": "BNB",
+    "block_explorer_url": "https://bscscan.com"
+  }
+}
