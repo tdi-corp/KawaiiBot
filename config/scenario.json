@@ -1,0 +1,145 @@
+{
+  "INS": {
+
+    "clickGetStart": {
+      "xpath": "//button[text()='Get Started']"
+    },
+    "clickImportWallet": {
+      "xpath": "//button[text()='Import wallet']"
+    },
+    "clickNoThanks": {
+      "xpath": "//button[text()='No Thanks']"
+    },
+    "awaitMetaPage": {
+      "xpath": "//input"
+    },
+    "clickTermsofUse": {
+      "script": "document.getElementsByClassName('first-time-flow__checkbox first-time-flow__terms')[0].click()"
+    },
+    "clickImport": {
+      "xpath": "//button[text()='Import']"
+    },
+    "clickAllDone": {
+      "xpath": "//button[text()='All Done']"
+    }
+  },
+
+  "ABS": {
+
+    "clickAddNetwork": {
+      "xpath": "//button[text()='Add Network']"
+    },
+    "awaitMetamaskForm": {
+      "xpath": "//input"
+    },
+    "clickSave": {
+      "xpath": "//button[text()='Save']"
+    },
+    "awaitPageBNB": {
+      "xpath": "//span[@class='currency-display-component__suffix' and text()='BNB']"
+    }
+  },
+
+  "MCN": {
+
+    "clickConnectWallet": {
+      "xpath": "//div[@class='ConnectWalletButton_connect-button__1REvN' and text()='Connect wallet']"
+    },
+    "clickConnectMetamask": {
+      "xpath": "//div[@class='ConnectWalletModal_button__3nLu4' and text()='Metamask']"
+    },
+    "clickNext": {
+      "xpath": "//button[text()='Next']"
+    },
+    "clickConnect": {
+      "xpath": "//button[text()='Connect']"
+    }
+  },
+
+
+  "DRP": {
+    "fndAll": {
+      "tag": "div",
+      "class": "NFTCard_nft-card-container__29kO7"
+    },
+    "fndName": {
+      "tag": "div",
+      "class": "NFTCard_name__9wPKG"
+    },
+    "fndQt": {
+      "tag": "div",
+      "class": "NFTCard_balance__13_f-"
+    },
+    "fndPrice": {
+      "tag": "div",
+      "class": "NFTCard_dollar__3Ev9C"
+    }
+  },
+
+
+  "PPQ": {
+    "clickProdcard": {
+      "script": "document.getElementsByClassName('NFTCard_nft-card-container__29kO7')[{}].click()\n"
+    },
+    "waitPage": {
+      "xpath": "//div[@class='NFTDetail_label__12rn_' and text()='Price']"
+    },
+    "fndName": {
+      "tag": "div",
+      "class": "NFTDetail_name__3E5Vd"
+    },
+    "fndQt": {
+      "tag": "div",
+      "class": "NFTDetail_id__1nKTD"
+    },
+    "fndPrice": {
+      "tag": "div",
+      "class": "Progress_dollar__1PCrl"
+    },
+    "clickBuy": {
+      "xpath": "//button[text()='Buy']"
+    },
+    "clickPopupBuy": {
+      "xpath": "//button[@class='Buy_submit__380OG' and text()='Buy']"
+    }
+  },
+
+
+  "FORMS": {
+
+    "dropdowns": {
+      "ProductsPosition": {
+        "button": {
+          "xpath": "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
+          "list": {
+            "LowestEndingPrice": "Lowest Ending Price",
+            "Latest": "Latest"
+          }
+        },
+        "menu": {
+          "item": {
+            "xpath": "//a[@class='dropdown-item' and ({})]"
+          }
+        }
+
+      },
+      "ProductsStatus": {
+        "button": {
+          "xpath": "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
+          "list": {
+            "All": "All",
+            "ForSale": "For sale",
+            "NotForSale": "Not for sale"
+          }
+        },
+        "menu": {
+          "item": {
+            "xpath": "//a[@class='dropdown-item' and ({})]"
+          }
+        }
+      }
+    }
+
+  }
+
+}

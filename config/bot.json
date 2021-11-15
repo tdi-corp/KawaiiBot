@@ -1,8 +1,7 @@
 {
   "urls": {
     "kawaii_global": "https://kawaii.global/",
-    "kawaii_marketplace_creatures": "http://kawaii-islands.airight.io/creatures"
-  },
-  "driver_path": "/usr/bin/chromedriver"
+    "kawaii_marketplace_creatures": "http://kawaii-islands.airight.io/fields"
+  }
 
 }

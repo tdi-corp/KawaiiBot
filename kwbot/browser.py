@@ -5,6 +5,7 @@ def set_selenium_local_session(
     bot,
     metamask_json,
     metamask_env_file,
+    env_driver_path,
     kw_bot_dir
 ):
     """Starts local session for a selenium server.
@@ -39,7 +40,7 @@ def set_selenium_local_session(
     metamask_path = '{}/{}/{}'.format(kw_bot_dir,metamask_folder,metamask_file)
 
     # prefer user path before downloaded one
-    driver_path = bot['driver_path']
+    driver_path = env_driver_path
 
     # Start WebDriver
     chrome_options = webdriver.ChromeOptions()

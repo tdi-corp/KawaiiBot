@@ -8,13 +8,6 @@ from bs4 import BeautifulSoup as bs
 class PageActions:
     """Class """
 
-    # def __init__(
-    #     self
-    # ):
-    #     # self.browser = browser
-    #     # self.handles = self.browser.window_handles
-    #     # self.current = self.browser.current_window_handle
-    #     print("Hello")
 
     def close_all_tabs_exept_current(self, browser):
 
@@ -243,22 +236,6 @@ class PageActions:
                 xp_click
             )
 
-    # def switch_dropdown(
-    #         self,
-    #         browser,
-    #         xpath_dropd,
-    #         togg_dropd,
-    #         xpath_click,
-    #         togg_click,
-    #         ivar
-    #     ):
-    #
-    #     if ivar % 2 == 0:
-    #
-    #     else:
-    #
-    #
-    #     return browser
 
 
 

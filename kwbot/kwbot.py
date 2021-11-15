@@ -12,8 +12,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from bs4 import BeautifulSoup as bs
-
 from .browser import set_selenium_local_session
 from .page_actions import PageActions
 
@@ -32,34 +30,39 @@ class KwBot:
         self.aborting = "False"
 
 
-        ## main dir
+        # main dir
         self.kw_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-        ## main bot dir
+        # main bot dir
         self.kw_bot_dir = os.path.dirname(os.path.realpath(__file__))
 
-        ## config dir
-        self.kw_conf_dir = f'{self.kw_dir}/config'
+        # config dir
+        self.kw_conf_dir = os.path.join(self.kw_dir, "config")
 
-        ## log dir
-        self.kw_log_dir = f'{self.kw_dir}/log'
-        self.kw_log_file = f'{self.kw_log_dir }/run.log'
 
-        ## configs dir
-        self.kw_conf_bot = f'{self.kw_conf_dir}/bot.json'
-        self.kw_conf_metamask = f'{self.kw_conf_dir}/metamask.json'
+        # log dir
+        self.kw_log_dir = os.path.join(self.kw_dir, "log")
+        self.kw_log_file = os.path.join(self.kw_log_dir, "run.log")
 
-        ## logs dir
-        if not os.path.exists(f'{self.kw_log_dir}'):
-            os.mkdir(f'{self.kw_log_dir}')
 
-        ## data from config
+        # configs dir
+        self.kw_conf_bot = os.path.join(self.kw_conf_dir, "bot.json")
+        self.kw_conf_metamask = os.path.join(self.kw_conf_dir, "metamask.json")
+        self.kw_conf_scenario = os.path.join(self.kw_conf_dir, "scenario.json")
+
+        # logs dir
+        if not os.path.exists(os.path.join(self.kw_log_dir)):
+            os.mkdir(os.path.join(self.kw_log_dir))
+
+
+        # data from config
         self.bot = open_json(self.kw_conf_bot)
         self.metamask = open_json(self.kw_conf_metamask)
+        self.scenario = open_json(self.kw_conf_scenario)
 
 
         # dotenv
-        dotenv_path = Path(f'{self.kw_dir}/.env')
+        dotenv_path = Path(os.path.join(self.kw_dir, ".env"))
         load_dotenv(dotenv_path = dotenv_path)
 
 
@@ -70,6 +73,7 @@ class KwBot:
         self.metamask_env_extension_id = os.getenv("METAMASK_EXTENSION_ID")
         self.metamask_env_secret_recovery_phrase = os.getenv("METAMASK_SECRET_RECOVERY_PHRASE")
         self.metamask_env_password = os.getenv("METAMASK_PASSWORD")
+        self.env_driver_path = os.getenv("DRIVER_PATH")
 
 
         # assign logger
@@ -86,6 +90,7 @@ class KwBot:
             self.bot,
             self.metamask,
             self.metamask_env_file,
+            self.env_driver_path,
             self.kw_bot_dir
             )
 
@@ -108,7 +113,7 @@ class KwBot:
         # Metamask Install
         #########################################################
 
-        self.metamask_install()
+        self.INS__metamask_install()
 
 
 
@@ -117,7 +122,7 @@ class KwBot:
         # 2 Switch Metamask to Binance Smart Chain
         #########################################################
 
-        self.metamask_bsc()
+        self.ABS__metamask_bsc()
 
 
 
@@ -144,7 +149,7 @@ class KwBot:
         # Metamask connect
         #########################################################
 
-        self.metamask_connect()
+        self.MCN__metamask_connect()
 
 
 
@@ -153,14 +158,14 @@ class KwBot:
         #
         #########################################################
 
-        self.push_dropdown_and_switch_to_latest()
+        self.PDS__push_dropdown_and_switch_to_latest()
 
 
 
         #########################################################
         #
         #########################################################
-        self.get_data_from_marketplace_in_cycle()
+        self.PPQ__get_data_from_marketplace_in_cycle()
 
 
 
@@ -178,7 +183,7 @@ class KwBot:
 
 
 
-    def metamask_install(self):
+    def INS__metamask_install(self):
         """
         Install Metamask and navigate
         """
@@ -191,12 +196,12 @@ class KwBot:
             )
 
         # Navigate Metamask
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Get Started"]')
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Import wallet"]')
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="No Thanks"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['INS']['clickGetStart']['xpath'])
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['INS']['clickImportWallet']['xpath'])
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['INS']['clickNoThanks']['xpath'])
 
         # Await Metamask Page Form
-        inputs_singup = self.page_actions.wait_page_and_find_elements_by_xpath(self.browser, '//input')
+        inputs_singup = self.page_actions.wait_page_and_find_elements_by_xpath(self.browser, self.scenario['INS']['awaitMetaPage']['xpath'])
 
         # Input Metamask Form
         inputs_singup[0].send_keys(self.metamask_env_secret_recovery_phrase)
@@ -204,17 +209,17 @@ class KwBot:
         inputs_singup[2].send_keys(self.metamask_env_password)
 
         # Push Metamask I have read and agree to the Terms of Use
-        self.browser.execute_script("document.getElementsByClassName('first-time-flow__checkbox first-time-flow__terms')[0].click()")
+        self.browser.execute_script(self.scenario['INS']['clickTermsofUse']['script'])
 
         # Push Metamask Form Import Button
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Import"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['INS']['clickImport']['xpath'])
 
         # Push Metamask All Done Button
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="All Done"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['INS']['clickAllDone']['xpath'])
 
 
 
-    def metamask_bsc(self):
+    def ABS__metamask_bsc(self):
         """
         Switch Metamask to Binance Smart Chain
         """
@@ -227,10 +232,10 @@ class KwBot:
             )
 
         # Push Metamask Add Network Button
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Add Network"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['ABS']['clickAddNetwork']['xpath'])
 
         # Await Metamask Network Form
-        inputs_network = self.page_actions.wait_page_and_find_elements_by_xpath(self.browser, '//input')
+        inputs_network = self.page_actions.wait_page_and_find_elements_by_xpath(self.browser, self.scenario['ABS']['awaitMetamaskForm']['xpath'])
 
         # Input Metamask Network Form
         inputs_network[0].send_keys(self.metamask['metamask_bsc']['network_name'])
@@ -240,10 +245,10 @@ class KwBot:
         inputs_network[4].send_keys(self.metamask['metamask_bsc']['block_explorer_url'])
 
         # Push Metamask Network Save Button
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Save"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['ABS']['clickSave']['xpath'])
 
         # Wait page by BNB
-        self.page_actions.wait_page_by_xpath(self.browser, "//span[@class='currency-display-component__suffix' and text()='BNB']")
+        self.page_actions.wait_page_by_xpath(self.browser, self.scenario['ABS']['awaitPageBNB']['xpath'])
 
 
 
@@ -283,7 +288,7 @@ class KwBot:
 
 
 
-    def metamask_connect(self):
+    def MCN__metamask_connect(self):
         """
         Metamask connect to Kawaii islands Marketplace
         """
@@ -291,12 +296,12 @@ class KwBot:
         time.sleep(2)
 
         # Push Connect Wallet
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, "//div[@class='ConnectWalletButton_connect-button__1REvN' and text()='Connect wallet']")
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['MCN']['clickConnectWallet']['xpath'])
 
         time.sleep(2)
 
         # Push Connect Metamask
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, "//div[@class='ConnectWalletModal_button__3nLu4' and text()='Metamask']")
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['MCN']['clickConnectMetamask']['xpath'])
 
 
         time.sleep(2)
@@ -309,11 +314,11 @@ class KwBot:
 
 
         # Click to Next MetaMask Notification
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Next"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['MCN']['clickNext']['xpath'])
 
 
         # Click to Connect MetaMask Notification
-        self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Connect"]')
+        self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['MCN']['clickConnect']['xpath'])
 
 
         # time.sleep(2)
@@ -325,92 +330,76 @@ class KwBot:
 
 
 
-    def push_dropdown_and_switch_to_latest(self):
+    def PDS__push_dropdown_and_switch_to_latest(self):
         """
         Push the dropdown and switch to 'Latest'
         """
+
         time.sleep(3)
 
 
-        # Push the dropdown Position Productas
+        # Push the dropdown Products Position
         self.page_actions.open_dropdown_and_click(
                 self.browser,
-                "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
+                self.scenario['FORMS']['dropdowns']['ProductsPosition']['button']['xpath'],
                 [
-                    "Lowest Ending Price",
-                    "Latest"
+                    self.scenario['FORMS']['dropdowns']['ProductsPosition']['button']['list']['LowestEndingPrice'],
+                    self.scenario['FORMS']['dropdowns']['ProductsPosition']['button']['list']['Latest']
                 ],
-                "//a[@class='dropdown-item' and ({})]",
+                self.scenario['FORMS']['dropdowns']['ProductsPosition']['menu']['item']['xpath'],
                 [
-                    "Latest"
+                    self.scenario['FORMS']['dropdowns']['ProductsPosition']['button']['list']['Latest']
                 ],
             )
 
 
 
 
-    def get_data_from_marketplace_in_cycle(self):
+    def PPQ__get_data_from_marketplace_in_cycle(self):
         """
         get data from marketplace in cycle
         """
-        price_not_more_than_usd = 212
-
-
-        html_PPQ_clickProdcard = {
-            'script': "document.getElementsByClassName('NFTCard_nft-card-container__29kO7')[{}].click()\n"
-        }
-
-        html_PPQ_waitPage = {
-            'xpath': "//div[@class='NFTDetail_label__12rn_' and text()='Price']"
-        }
-
-        html_PPQ_fndQt = {
-            'tag': 'div',
-            'class': 'NFTDetail_id__1nKTD'
-        }
-
-        html_PPQ_fndPrice = {
-            'tag': 'div',
-            'class': 'Progress_dollar__1PCrl'
-        }
+        price_not_more_than_usd = 200
 
 
         flag = 1
 
-        for i in range(5):
+        for i in range(10):
 
             soup = self.switch_dropdown(i)
 
-            result = self.get_data_from_marketplace_dir_page(price_not_more_than_usd, soup)
+            result = self.DRP__get_data_from_marketplace_dir_page(price_not_more_than_usd, soup)
 
             if result['result']['status_buy'] == 'ok':
 
                 x = result['result']['buy'][0]['i']
 
-                ##del
-                print(result['result']['buy'])
 
                 # click to Product Card
                 self.browser.execute_script(
-                        html_PPQ_clickProdcard['script'].format(x)
+                        self.scenario['PPQ']['clickProdcard']['script'].format(x)
                     )
+
+
 
                 # Wait page by text()='Price'
                 self.page_actions.wait_page_by_xpath(
                         self.browser,
-                        html_PPQ_waitPage['xpath']
+                        self.scenario['PPQ']['waitPage']['xpath']
                     )
 
 
                 # Get HTML page
                 soup2 = self.page_actions.get_html_page(self.browser)
 
-                # name = quote.find(html_DRP_fndName['tag'], class_= html_DRP_fndName['class']).string
 
                 # Take Qt
-                qt = soup2.find(html_PPQ_fndQt['tag'], class_= html_PPQ_fndQt['class']).string
+                name = soup2.find(self.scenario['PPQ']['fndName']['tag'], class_= self.scenario['PPQ']['fndName']['class']).string
 
-                price_usd = soup2.find(html_PPQ_fndPrice['tag'], class_= html_PPQ_fndPrice['class']).string
+                qt = soup2.find(self.scenario['PPQ']['fndQt']['tag'], class_= self.scenario['PPQ']['fndQt']['class']).string
+
+                price_usd = soup2.find(self.scenario['PPQ']['fndPrice']['tag'], class_= self.scenario['PPQ']['fndPrice']['class']).string
+
 
                 price_maybe, price_usd_convert = check_price(price_not_more_than_usd, price_usd, qt)
 
@@ -418,12 +407,13 @@ class KwBot:
 
                     print(f"Good Price {price_usd_convert}")
                     print(f"dotenv: {self.app_name}")
-                    # # CLick Button Buy
-                    # self.page_actions.wait_page_and_click_by_xpath(self.browser, '//button[text()="Buy"]')
-                    #
-                    #
-                    # # CLick Button Buy in Popup
-                    # self.page_actions.wait_page_and_click_by_xpath(self.browser, "//button[@class='Buy_submit__380OG' and text()='Buy']")
+
+                    # CLick Button Buy
+                    self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickBuy']['xpath'])
+
+
+                    # CLick Button Buy in Popup
+                    self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickPopupBuy']['xpath'])
 
 
 
@@ -439,7 +429,7 @@ class KwBot:
 
 
 
-    def get_data_from_marketplace_dir_page(self, price_not_more_than_usd, soup):
+    def DRP__get_data_from_marketplace_dir_page(self, price_not_more_than_usd, soup):
         """
         get data from marketplace in cycle
         """
@@ -449,28 +439,7 @@ class KwBot:
         dataOrder = DataOrder()
 
 
-        html_DRP_fndAll = {
-            'tag': 'div',
-            'class': 'NFTCard_nft-card-container__29kO7'
-        }
-
-        html_DRP_fndName = {
-            'tag': 'div',
-            'class': 'NFTCard_name__9wPKG'
-        }
-
-        html_DRP_fndQt = {
-            'tag': 'div',
-            'class': 'NFTCard_balance__13_f-'
-        }
-
-        html_DRP_fndPrice = {
-            'tag': 'div',
-            'class': 'NFTCard_dollar__3Ev9C'
-        }
-
-
-        quotes = soup.find_all(html_DRP_fndAll['tag'], class_= html_DRP_fndAll['class'])
+        quotes = soup.find_all(self.scenario['DRP']['fndAll']['tag'], class_= self.scenario['DRP']['fndAll']['class'])
 
         data = {}
         status_buy = "no"
@@ -480,15 +449,18 @@ class KwBot:
 
         for quote in quotes:
 
-            name = quote.find(html_DRP_fndName['tag'], class_= html_DRP_fndName['class']).string
 
-            qt = quote.find(html_DRP_fndQt['tag'], class_= html_DRP_fndQt['class']).string
+            name = quote.find(self.scenario['DRP']['fndName']['tag'], class_= self.scenario['DRP']['fndName']['class']).string
 
-            price_usd = quote.find(html_DRP_fndPrice['tag'], class_= html_DRP_fndPrice['class']).string
+            qt = quote.find(self.scenario['DRP']['fndQt']['tag'], class_= self.scenario['DRP']['fndQt']['class']).string
+
+            price_usd = quote.find(self.scenario['DRP']['fndPrice']['tag'], class_= self.scenario['DRP']['fndPrice']['class']).string
 
             price_maybe, price_usd_convert = check_price(price_not_more_than_usd, price_usd, qt)
 
             data[i] = dataOrder.product(i, name, qt, price_usd_convert)
+
+            print("--- lot: {}, qt: {}, cost: {}".format(name, qt, price_usd_convert))
 
 
             if price_maybe:
@@ -517,37 +489,36 @@ class KwBot:
 
 
         if ivar % 2 == 0:
-            # Push the dropdown Status Products
+            # Push the dropdown Products Status
             self.page_actions.open_dropdown_and_click(
                     self.browser,
-                    "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
+                    self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['xpath'],
                     [
-                        "All",
-                        "For sale",
-                        "Not for sale"
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['All'],
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['ForSale'],
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['NotForSale'],
                     ],
-                    "//a[@class='dropdown-item' and ({})]",
+                    self.scenario['FORMS']['dropdowns']['ProductsStatus']['menu']['item']['xpath'],
                     [
-                        "All"
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['All']
                     ],
                 )
         else:
-            # Push the dropdown Status Products
+            # Push the dropdown Products Status
             self.page_actions.open_dropdown_and_click(
                     self.browser,
-                    "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
+                    self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['xpath'],
                     [
-                        "All",
-                        "For sale",
-                        "Not for sale"
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['All'],
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['ForSale'],
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['NotForSale'],
                     ],
-                    "//a[@class='dropdown-item' and ({})]",
+                    self.scenario['FORMS']['dropdowns']['ProductsStatus']['menu']['item']['xpath'],
                     [
-                        "For sale"
+                        self.scenario['FORMS']['dropdowns']['ProductsStatus']['button']['list']['ForSale']
                     ],
                 )
 
-        #time.sleep(1)
 
         # Wait page by
         self.page_actions.wait_page_by_CLASS_NAME(
