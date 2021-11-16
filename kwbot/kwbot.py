@@ -75,6 +75,27 @@ class KwBot:
         self.metamask_env_password = os.getenv("METAMASK_PASSWORD")
         self.env_driver_path = os.getenv("DRIVER_PATH")
 
+        max_price_lot = os.getenv("MAX_PRICE_LOT") or 10
+        max_price_per_one =os.getenv("MAX_PRICE_PER_ONE") or 0
+        min_qt = os.getenv("MIN_QT") or 1
+
+
+        #
+        self.purchase_condition = {
+            "max_price_lot": float(max_price_lot),
+            "max_price_per_one": float(max_price_per_one),
+            "min_qt": int(min_qt),
+        }
+
+        print(f"self.max_price_lot: {self.purchase_condition['max_price_lot']}, type: {type(self.purchase_condition['max_price_lot'])}")
+        print(f"self.max_price_per_one: {self.purchase_condition['max_price_per_one']}, type: {type(self.purchase_condition['max_price_per_one'])}")
+        print(f"self.min_qt: {self.purchase_condition['min_qt']}, type: {type(self.purchase_condition['min_qt'])}")
+        # self.purchase_condition = {
+        #     "max_price_lot": float(os.getenv("MAX_PRICE_LOT", 10)),
+        #     "max_price_per_one": float(os.getenv("MAX_PRICE_PER_ONE", 1)),
+        #     "min_qt": int(float(os.getenv("MIN_QT", 1))),
+        # }
+
 
         # assign logger
         logging.basicConfig(
@@ -364,7 +385,9 @@ class KwBot:
 
         flag = 1
 
-        for i in range(10):
+        i = 0
+
+        while True:
 
             soup = self.switch_dropdown(i)
 
@@ -401,12 +424,12 @@ class KwBot:
                 price_usd = soup2.find(self.scenario['PPQ']['fndPrice']['tag'], class_= self.scenario['PPQ']['fndPrice']['class']).string
 
 
-                price_maybe, price_usd_convert = check_price(price_not_more_than_usd, price_usd, qt)
+                price_maybe, price_usd_convert, qt_, price_per_one = check_price(self.purchase_condition, price_usd, qt)
 
                 if price_maybe:
 
-                    print(f"Good Price {price_usd_convert}")
-                    print(f"dotenv: {self.app_name}")
+                    print("__ Winner: {}, {} qt, ${}, ${} p/1, {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
+                    # print(f"dotenv: {self.app_name}")
 
                     # CLick Button Buy
                     self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickBuy']['xpath'])
@@ -426,7 +449,7 @@ class KwBot:
             if flag == 0:
                 break
 
-
+            i += 1
 
 
     def DRP__get_data_from_marketplace_dir_page(self, price_not_more_than_usd, soup):
@@ -456,16 +479,17 @@ class KwBot:
 
             price_usd = quote.find(self.scenario['DRP']['fndPrice']['tag'], class_= self.scenario['DRP']['fndPrice']['class']).string
 
-            price_maybe, price_usd_convert = check_price(price_not_more_than_usd, price_usd, qt)
+            price_maybe, price_usd_convert, qt_, price_per_one = check_price(self.purchase_condition, price_usd, qt)
 
-            data[i] = dataOrder.product(i, name, qt, price_usd_convert)
 
-            print("--- lot: {}, qt: {}, cost: {}".format(name, qt, price_usd_convert))
+            data[i] = dataOrder.product(i, name, qt_, price_usd_convert)
+
+            print("__ Lot: {}, {} qt, ${}, ${} p/1, {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
 
 
             if price_maybe:
 
-                buy[i_price] = dataOrder.product(i, name, qt, price_usd_convert)
+                buy[i_price] = dataOrder.product(i, name, qt_, price_usd_convert)
 
                 status_buy = "ok"
                 i_price += 1
@@ -567,41 +591,73 @@ class DataOrder:
 
 
 
-def check_price(price_not_more_than_usd, price_usd, qt=1):
+def check_price(purchase_condition, price_usd, qt=1):
     """
 
-    :return True/False
+    :return True/False, price_usd_
     """
 
-    price_usd_convert = convert_amount(price_usd)
+    max_price_lot = purchase_condition["max_price_lot"]
+    max_price_per_one = purchase_condition["max_price_per_one"]
+    min_qt = purchase_condition["min_qt"]
+
+    # qt
+    if(isinstance(qt, float) or isinstance(qt, int)):
+        qt_ = qt
+
+    elif (isinstance(qt, str)):
+        qt_ = int(convert_price(qt))
+        # print(f"qt_________: {qt}")
+
+    else:
+        "error"
+
+
+    # convert price
+    price_usd_ = convert_price(price_usd)
+
+    # Price per one
+    price_per_one = round(price_usd_ / qt_, 2)
+
+
+
+    # IF qt > min_qt
+    if qt_ < min_qt:
+        return False, price_usd_, qt_, price_per_one
+
+    # IF price_per_one > max_price_per_one
+    if max_price_per_one and price_per_one > max_price_per_one:
+        return False, price_usd_, qt_, price_per_one
 
     # IF Price is God
-    if price_usd_convert <= price_not_more_than_usd:
+    if price_usd_ > max_price_lot:
+        return False, price_usd_, qt_, price_per_one
 
-        return True, price_usd_convert
 
-
-    return False, price_usd_convert
-
+    return True, price_usd_, qt_, price_per_one
 
 
 
 
-def convert_amount(num_str):
+
+def convert_price(num_):
 
     powers = {
             'K': 10 ** 3,
             'M': 10 ** 6
         }
 
-    match = re.search(r"([0-9\.]+)\s?(K|M)", num_str)
+    if(isinstance(num_, float) or isinstance(num_, int)):
+        return num_
+
+    match = re.search(r"([0-9\.]+)\s?(K|M)", num_)
 
     if match is not None:
         quantity = match.group(1)
         magnitude = match.group(2)
         return float(quantity) * powers[magnitude]
     else:
-        r = re.sub("[^0123456789\.,]","",num_str)
+        r = re.sub("[^0123456789\.,]","",num_)
         return float(r)
 
 
