@@ -112,7 +112,7 @@
         "button": {
           "xpath": "//button[@class='dropdown-toggle btn btn-success' and ({})]\n",
           "list": {
-            "LowestEndingPrice": "Lowest Ending Price",
+            "LowestEndingPrice": "Lowest Current Price",
             "Latest": "Latest"
           }
         },

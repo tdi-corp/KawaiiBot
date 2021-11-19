@@ -4,6 +4,7 @@ import os
 import sys
 import re
 import time
+from datetime import datetime
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -75,26 +76,22 @@ class KwBot:
         self.metamask_env_password = os.getenv("METAMASK_PASSWORD")
         self.env_driver_path = os.getenv("DRIVER_PATH")
 
+        # Target path
+        env_target_page = os.getenv("TARGET_PAGE")
+        self.target_path = '{}/{}'.format(self.bot['urls']['kawaii_marketplace'], env_target_page)
+
+
+        # Price settings from .env
         max_price_lot = os.getenv("MAX_PRICE_LOT") or 10
         max_price_per_one =os.getenv("MAX_PRICE_PER_ONE") or 0
         min_qt = os.getenv("MIN_QT") or 1
 
-
-        #
         self.purchase_condition = {
             "max_price_lot": float(max_price_lot),
             "max_price_per_one": float(max_price_per_one),
             "min_qt": int(min_qt),
         }
 
-        print(f"self.max_price_lot: {self.purchase_condition['max_price_lot']}, type: {type(self.purchase_condition['max_price_lot'])}")
-        print(f"self.max_price_per_one: {self.purchase_condition['max_price_per_one']}, type: {type(self.purchase_condition['max_price_per_one'])}")
-        print(f"self.min_qt: {self.purchase_condition['min_qt']}, type: {type(self.purchase_condition['min_qt'])}")
-        # self.purchase_condition = {
-        #     "max_price_lot": float(os.getenv("MAX_PRICE_LOT", 10)),
-        #     "max_price_per_one": float(os.getenv("MAX_PRICE_PER_ONE", 1)),
-        #     "min_qt": int(float(os.getenv("MIN_QT", 1))),
-        # }
 
 
         # assign logger
@@ -134,7 +131,7 @@ class KwBot:
         # Metamask Install
         #########################################################
 
-        self.INS__metamask_install()
+        # self.INS__metamask_install()
 
 
 
@@ -143,7 +140,7 @@ class KwBot:
         # 2 Switch Metamask to Binance Smart Chain
         #########################################################
 
-        self.ABS__metamask_bsc()
+        # self.ABS__metamask_bsc()
 
 
 
@@ -170,7 +167,7 @@ class KwBot:
         # Metamask connect
         #########################################################
 
-        self.MCN__metamask_connect()
+        # self.MCN__metamask_connect()
 
 
 
@@ -212,8 +209,7 @@ class KwBot:
         # Open Metamask
         self.page_actions.get_and_wait_page_by_tag(
                 self.browser,
-                'chrome-extension://{}/home.html#initialize/welcome'.format(self.metamask_env_extension_id),
-                30
+                'chrome-extension://{}/home.html#initialize/welcome'.format(self.metamask_env_extension_id)
             )
 
         # Navigate Metamask
@@ -248,8 +244,7 @@ class KwBot:
         # Open Metamask Settings -> Networks
         self.page_actions.get_and_wait_page_by_tag(
                 self.browser,
-                'chrome-extension://{}/home.html#settings/networks'.format(self.metamask_env_extension_id),
-                30
+                'chrome-extension://{}/home.html#settings/networks'.format(self.metamask_env_extension_id)
             )
 
         # Push Metamask Add Network Button
@@ -278,7 +273,7 @@ class KwBot:
         Kawaii islands Bypass Protection
         """
         # Open kawaii Globl website
-        self.page_actions.get_and_wait_page_by_tag(self.browser, self.bot['urls']['kawaii_global'], 50)
+        self.page_actions.get_and_wait_page_by_tag(self.browser, self.bot['urls']['kawaii_global'])
 
         # wait
         time.sleep(5)
@@ -299,11 +294,10 @@ class KwBot:
         # wait
         time.sleep(3)
 
-        # open kawaii_marketplace_creatures
+        # open kawaii marketplace
         self.page_actions.get_and_wait_page_by_tag(
                 self.browser,
-                self.bot['urls']['kawaii_marketplace_creatures'],
-                50
+                self.target_path
             )
 
 
@@ -380,8 +374,6 @@ class KwBot:
         """
         get data from marketplace in cycle
         """
-        price_not_more_than_usd = 200
-
 
         flag = 1
 
@@ -391,7 +383,7 @@ class KwBot:
 
             soup = self.switch_dropdown(i)
 
-            result = self.DRP__get_data_from_marketplace_dir_page(price_not_more_than_usd, soup)
+            result = self.DRP__get_data_from_marketplace_dir_page(soup)
 
             if result['result']['status_buy'] == 'ok':
 
@@ -426,9 +418,9 @@ class KwBot:
 
                 price_maybe, price_usd_convert, qt_, price_per_one = check_price(self.purchase_condition, price_usd, qt)
 
+
                 if price_maybe:
 
-                    print("__ Winner: {}, {} qt, ${}, ${} p/1, {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
                     # print(f"dotenv: {self.app_name}")
 
                     # CLick Button Buy
@@ -438,7 +430,12 @@ class KwBot:
                     # CLick Button Buy in Popup
                     self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickPopupBuy']['xpath'])
 
+                    # Message
+                    message = "---Winner--- {}   ${} * {} = ${}   {}".format(name, price_per_one, qt_, price_usd_convert, price_maybe)
+                    print(message)
 
+                    # Great file log
+                    self.file_greate(message)
 
                 # Stop cicle
                 flag = 0
@@ -452,13 +449,11 @@ class KwBot:
             i += 1
 
 
-    def DRP__get_data_from_marketplace_dir_page(self, price_not_more_than_usd, soup):
+    def DRP__get_data_from_marketplace_dir_page(self, soup):
         """
         get data from marketplace in cycle
         """
-        # price_not_more_than_usd = 212
-        #
-        # soup = self.switch_dropdown(0)
+
         dataOrder = DataOrder()
 
 
@@ -484,8 +479,10 @@ class KwBot:
 
             data[i] = dataOrder.product(i, name, qt_, price_usd_convert)
 
-            print("__ Lot: {}, {} qt, ${}, ${} p/1, {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
 
+            # print("--- {}   {} qt   ${}   ${} p/1   {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
+            message = "--- {}   ${} * {} = ${}   {}".format(name, price_per_one, qt_, price_usd_convert, price_maybe)
+            print(message)
 
             if price_maybe:
 
@@ -547,7 +544,6 @@ class KwBot:
         # Wait page by
         self.page_actions.wait_page_by_CLASS_NAME(
                 self.browser,
-                30,
                 "ListNFT_grid__2DfYW"
             )
 
@@ -555,6 +551,15 @@ class KwBot:
 
         return soup
 
+
+    def file_greate(self, txt):
+
+        name = file_name()
+        name_full = "{}/{}.txt".format(self.kw_log_dir, name)
+
+        my_file = open(name_full, "w+")
+        my_file.write(txt)
+        my_file.close()
 
 
 
@@ -684,6 +689,13 @@ def open_json(file = "no.json"):
 
     return r
 
+
+def file_name():
+    dt = datetime.now()
+
+    res ="{}-{}-{}_{}-{}-{}".format(dt.day, dt.month, dt.year, dt.hour, dt.minute, dt.second)
+
+    return res
 
 
 kwbot = KwBot()

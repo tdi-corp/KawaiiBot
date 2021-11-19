@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup as bs
 class PageActions:
     """Class """
 
+    def __init__(self):
+        self.delay = 20
+
 
     def close_all_tabs_exept_current(self, browser):
 
@@ -29,10 +32,10 @@ class PageActions:
 
 
 
-    def wait_page_by_tag(self, browser, delay=30, tag="html"):
+    def wait_page_by_tag(self, browser, tag="html"):
 
         try:
-            WebDriverWait(browser, delay).until(
+            WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.TAG_NAME, tag))
             )
         except:
@@ -41,10 +44,10 @@ class PageActions:
 
 
 
-    def wait_page_by_CLASS_NAME(self, browser, delay=30, tag="html"):
+    def wait_page_by_CLASS_NAME(self, browser, tag="html"):
 
         try:
-            WebDriverWait(browser, delay).until(
+            WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.CLASS_NAME, tag))
             )
         except:
@@ -53,10 +56,10 @@ class PageActions:
 
 
 
-    def wait_page_by_xpath(self, browser, xpath, delay=30):
+    def wait_page_by_xpath(self, browser, xpath):
 
         try:
-            WebDriverWait(browser, delay).until(
+            WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
         except:
@@ -66,12 +69,12 @@ class PageActions:
 
 
 
-    def get_and_wait_page_by_tag(self, browser, url, delay=30, tag="html"):
+    def get_and_wait_page_by_tag(self, browser, url, tag="html"):
 
         browser.get(url)
 
         try:
-            el = WebDriverWait(browser, delay).until(
+            el = WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.TAG_NAME, tag))
             )
             if el:
@@ -86,40 +89,41 @@ class PageActions:
 
 
 
-    def wait_page_and_click_by_xpath(self, browser, xpath, delay=30):
+    def wait_page_and_click_by_xpath(self, browser, xpath):
 
         try:
-            el = WebDriverWait(browser, delay).until(
+            el = WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
             if el:
                 browser.find_element(By.XPATH, xpath).click()
-                print("--Click!")
+                print(f"--Click xpath")
             else:
-                print("Sorry!")
                 browser.quit()
+                print(f"--Error xpath")
 
         except:
-            print("Loading took too much time!")
             browser.quit()
+            print(f"--Error Loading took too much time! by xpath")
             # exit()
 
 
 
-    def wait_page_and_find_elements_by_xpath(self, browser, xpath, delay=30):
+    def wait_page_and_find_elements_by_xpath(self, browser, xpath):
 
         elements = None
         try:
-            el = WebDriverWait(browser, delay).until(
+            el = WebDriverWait(browser, self.delay).until(
                 EC.presence_of_element_located((By.XPATH, xpath))
             )
             if el:
                 elements = browser.find_elements(By.XPATH, xpath)
+                print(f"--Elements find by xpath")
             else:
-                print("Sorry!")
+                print(f"--Error xpath")
 
         except:
-            print("Loading took too much time!")
+            print(f"--Error Loading took too much time! by xpath")
             # exit()
 
         return elements
@@ -162,38 +166,6 @@ class PageActions:
         handles = browser.window_handles
         browser.switch_to.window(handles[0])
         print(f"--Switch to First Tab - with Active Handle Tab title: {browser.title}")
-
-
-
-
-
-
-    def xpath_text(self, val = []):
-        """
-
-        :return: string: "text() = '' or text() = ''"
-        """
-        size = len(val)
-
-        if size > 0:
-
-            textf = []
-
-            for x in range(size):
-                if x == 0:
-                    r = "text()='{}'\n".format(val[x])
-
-                else:
-                    r = " or text()='{}'\n".format(val[x])
-
-                textf.append(r)
-
-            text = ''.join(textf)
-
-        else:
-            text = None
-
-        return text
 
 
 
@@ -245,3 +217,33 @@ class PageActions:
         soup = bs(source_data, 'lxml')
 
         return soup
+
+
+
+
+    def xpath_text(self, val = []):
+        """
+
+        :return: string: "text() = '' or text() = ''"
+        """
+        size = len(val)
+
+        if size > 0:
+
+            textf = []
+
+            for x in range(size):
+                if x == 0:
+                    r = "text()='{}'\n".format(val[x])
+
+                else:
+                    r = " or text()='{}'\n".format(val[x])
+
+                textf.append(r)
+
+            text = ''.join(textf)
+
+        else:
+            text = None
+
+        return text

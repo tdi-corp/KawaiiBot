@@ -15,20 +15,38 @@ def set_selenium_local_session(
     page_delay = 100
     err_msg = ""
 
+    proxy_address=""
+    proxy_port=""
+
     opt_window_size = "window-size=1920,1080"
     opt_user_agent = "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
     opt_prefs = {
         'intl.accept_languages': 'en,en_US',
         'profile.default_content_setting_values':
             {
-                'cookies': 2, 'images': 2,
-                'plugins': 2, 'popups': 2, 'geolocation': 2,
-                'notifications': 2, 'auto_select_certificate': 2, 'fullscreen': 2,
-                'mouselock': 2, 'mixed_script': 2, 'media_stream': 2,
-                'media_stream_mic': 2, 'media_stream_camera': 2, 'protocol_handlers': 2,
-                'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2,
-                'push_messaging': 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop': 2,
-                'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2,
+                'cookies': 2,
+                'images': 2,
+                'plugins': 2,
+                'popups': 2,
+                'geolocation': 2,
+                'notifications': 2,
+                'auto_select_certificate': 2,
+                'fullscreen': 2,
+                'mouselock': 2,
+                'mixed_script': 2,
+                'media_stream': 2,
+                'media_stream_mic': 2,
+                'media_stream_camera': 2,
+                'protocol_handlers': 2,
+                'ppapi_broker': 2,
+                'automatic_downloads': 2,
+                'midi_sysex': 2,
+                'push_messaging': 2,
+                'ssl_cert_decisions': 2,
+                'metro_switch_to_desktop': 2,
+                'protected_media_identifier': 2,
+                'app_banner': 2,
+                'site_engagement': 2,
                 'durable_storage': 2
             }
         }
@@ -47,11 +65,8 @@ def set_selenium_local_session(
 
 
     chrome_options.add_argument('disable-infobars')
-    # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    # chrome_options.add_experimental_option('useAutomationExtension', False)
-    # chrome_options.add_argument('--disable-gpu')
-    # # chrome_options.add_argument("window-size=1920,1080")
-    #
+    chrome_options.add_argument('--disable-gpu')
+
     # chrome_options.headless = True
 
 
@@ -60,10 +75,28 @@ def set_selenium_local_session(
     # Add metamask
     chrome_options.add_extension(metamask_path)
 
-    # chrome_options.headless = True
+
+
+
+
+    # Removes navigator.webdriver flag
+    #########################################################
+
+    # For older ChromeDriver under version 79.0.3945.16
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
 
     # For ChromeDriver version 79.0.3945.16 or over
     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+
+
+
+    # Proxy
+    #########################################################
+    if proxy_address and proxy_port:
+        chrome_options.add_argument("proxy-server={}:{}".format(proxy_address, int(proxy_port)))
+
+
 
     # Change Browser Options
     chrome_options.add_argument(opt_window_size)

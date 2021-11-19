@@ -1,7 +1,16 @@
 {
   "urls": {
     "kawaii_global": "https://kawaii.global/",
-    "kawaii_marketplace_creatures": "http://kawaii-islands.airight.io/dyes"
+    "kawaii_marketplace": "http://kawaii-islands.airight.io"
+  },
+  "browser": {
+    "window_size": "1920,1080",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+    "languages": "en,en_US",
+    "proxy": {
+      "address": "",
+      "port": ""
+    }
   }
 
 }
