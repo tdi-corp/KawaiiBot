@@ -131,7 +131,7 @@ class KwBot:
         # Metamask Install
         #########################################################
 
-        # self.INS__metamask_install()
+        self.INS__metamask_install()
 
 
 
@@ -140,7 +140,7 @@ class KwBot:
         # 2 Switch Metamask to Binance Smart Chain
         #########################################################
 
-        # self.ABS__metamask_bsc()
+        self.ABS__metamask_bsc()
 
 
 
@@ -167,7 +167,7 @@ class KwBot:
         # Metamask connect
         #########################################################
 
-        # self.MCN__metamask_connect()
+        self.MCN__metamask_connect()
 
 
 
@@ -430,6 +430,57 @@ class KwBot:
                     # CLick Button Buy in Popup
                     self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickPopupBuy']['xpath'])
 
+
+
+
+                    # Wait until MetaMask Notification window open
+                    self.waiting_second_window()
+
+
+
+                    # Window Handles Mask
+                    handles_static = self.browser.window_handles
+                    size_static = len(handles_static)
+                    handles_static_last = handles_static[size_static - 1]
+                    # print(f"--size: {size_static}; handles: {handles_static}; handles_static_last: {handles_static_last}")
+
+
+
+                    # Click to SIGN
+                    self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickMetamaskSign']['xpath'])
+
+                    # Switch to first Tab
+                    self.page_actions.switch_to_first_tab(self.browser)
+
+
+                    # Wait until MetaMask Notification second other window open
+                    self.waiting_second_other_window(handles_static_last)
+
+
+
+                    # Click to Reject
+                    self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickMetamaskReject']['xpath'])
+
+                    # # Click to Confirm
+                    # self.page_actions.wait_page_and_click_by_xpath(self.browser, self.scenario['PPQ']['clickMetamaskConfirm']['xpath'])
+
+
+
+                    # Switch to first Tab
+                    self.page_actions.switch_to_first_tab(self.browser)
+
+
+
+
+                    time.sleep(7)
+                    handles = self.browser.window_handles
+                    current = self.browser.current_window_handle
+                    size = len(handles)
+                    print(f"--size: {size}; handles: {handles}; current: {current}")
+
+
+
+
                     # Message
                     message = "---Winner--- {}   ${} * {} = ${}   {}".format(name, price_per_one, qt_, price_usd_convert, price_maybe)
                     print(message)
@@ -447,6 +498,50 @@ class KwBot:
                 break
 
             i += 1
+
+    def waiting_second_window(self):
+        """
+        Wait until MetaMask Notification window open
+
+        """
+        while True:
+
+            handles = self.browser.window_handles
+            size = len(handles)
+
+            if size >= 2:
+
+                # Switch to MetaMask Notification
+                self.page_actions.switch_to_second_tab_if_there_two(self.browser)
+
+                break
+
+
+    def waiting_second_other_window(self, handles_static_last):
+        """
+        Wait until MetaMask Notification second other window open
+
+        handles_static: ['CDwindow-..1', 'CDwindow-..2']
+        handles_dinamic: ['CDwindow-..1', 'CDwindow-..2'] or ['CDwindow-..1'] or ['CDwindow-..1', 'CDwindow-..3']
+        """
+        while True:
+
+            handles_dinamic = self.browser.window_handles
+            size_dinamic = len(handles_dinamic)
+            handles_dinamic_last = handles_dinamic[size_dinamic - 1]
+
+            if size_dinamic >= 2 and handles_static_last != handles_dinamic_last:
+
+                print(f"--handles_static_last: {handles_static_last}; handles_dinamic_last: {handles_dinamic_last}")
+
+                # Switch to MetaMask Notification
+                self.page_actions.switch_to_second_tab_if_there_two(self.browser)
+
+                break
+
+
+
+
 
 
     def DRP__get_data_from_marketplace_dir_page(self, soup):
@@ -479,8 +574,6 @@ class KwBot:
 
             data[i] = dataOrder.product(i, name, qt_, price_usd_convert)
 
-
-            # print("--- {}   {} qt   ${}   ${} p/1   {}".format(name, qt_, price_usd_convert, price_per_one, price_maybe))
             message = "--- {}   ${} * {} = ${}   {}".format(name, price_per_one, qt_, price_usd_convert, price_maybe)
             print(message)
 

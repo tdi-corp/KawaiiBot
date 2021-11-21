@@ -101,6 +101,15 @@
     },
     "clickPopupBuy": {
       "xpath": "//button[@class='Buy_submit__380OG' and text()='Buy']"
+    },
+    "clickMetamaskSign": {
+      "xpath": "//button[text()='Sign']"
+    },
+    "clickMetamaskReject": {
+      "xpath": "//button[text()='Reject']"
+    },
+    "clickMetamaskConfirm": {
+      "xpath": "//button[text()='Confirm']"
     }
   },
 

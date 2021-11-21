@@ -162,6 +162,7 @@ class PageActions:
 
 
 
+
     def switch_to_first_tab(self, browser):
         handles = browser.window_handles
         browser.switch_to.window(handles[0])
